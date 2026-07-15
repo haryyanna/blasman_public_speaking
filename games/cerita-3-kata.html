@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cerita dari 3 Kata | BPS Games</title>
+    <!-- CSS Links -->
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+    <style>
+        .word-box {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #ffffff;
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            letter-spacing: -0.01em;
+            padding: 1.2rem;
+            background: rgba(127, 29, 29, 0.1);
+            border: 1px solid rgba(127, 29, 29, 0.2);
+            border-radius: 18px;
+            min-height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .word-box:hover {
+            transform: scale(1.03);
+            border-color: rgba(127, 29, 29, 0.5);
+            box-shadow: 0 10px 25px rgba(127, 29, 29, 0.15);
+        }
+        .rec-indicator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            color: #ef4444;
+            font-weight: 700;
+            font-size: 1rem;
+            animation: blink 1s infinite alternate;
+        }
+        @keyframes blink {
+            from { opacity: 0.3; }
+            to { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Nav Bar -->
+    <nav class="game-nav">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a href="../index.html#games" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Kembali ke Dashboard
+            </a>
+            <span class="fw-bold text-danger m-0">BLASMAN PUBLIC SPEAKING</span>
+        </div>
+    </nav>
+
+    <!-- Main Game Area -->
+    <div class="game-container">
+        <div class="glass-card text-center">
+            <div class="mb-3">
+                <span class="badge bg-danger rounded-pill px-3 py-2 text-uppercase">Game #3</span>
+            </div>
+            <h1 class="game-title">Cerita dari 3 Kata</h1>
+            <p class="game-desc">
+                Hubungkan 3 kata acak yang muncul di bawah ini menjadi satu cerita terstruktur dalam waktu 1 menit. Rekam suara Anda untuk mendengarkan kembali hasil improvisasinya!
+            </p>
+
+            <!-- Setup Screen -->
+            <div id="setup-screen">
+                <div class="row justify-content-center mb-4">
+                    <div class="col-md-8">
+                        <div class="mb-4 text-start">
+                            <label class="form-label text-white-50 fw-bold">Nama Pencerita:</label>
+                            <input type="text" id="player-name" class="config-input" value="Pemain 1" placeholder="Masukkan nama Anda">
+                        </div>
+                        <button id="btn-start" class="btn-game btn-game-primary w-100 py-3">
+                            <i class="fas fa-magic"></i> Acak Kata & Mulai Cerita
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Board (Hidden Initially) -->
+            <div id="game-board" class="d-none">
+                <!-- Word Grid -->
+                <div class="text-white-50 small mb-2 text-start">🔗 HUBUNGKAN KETIGA KATA INI:</div>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div id="word-1" class="word-box">Kucing</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div id="word-2" class="word-box">Ujian</div>
+                    </div>
+                    <div class="col-md-4">
+                        <div id="word-3" class="word-box">Hujan</div>
+                    </div>
+                </div>
+
+                <!-- Timer & Recording Status -->
+                <div class="timer-container my-4">
+                    <svg class="timer-svg">
+                        <circle class="timer-circle-bg" cx="80" cy="80" r="70"></circle>
+                        <circle id="timer-progress" class="timer-circle-progress" cx="80" cy="80" r="70" stroke-dasharray="440" stroke-dashoffset="0"></circle>
+                    </svg>
+                    <div id="timer-text" class="timer-text">60</div>
+                </div>
+
+                <!-- Rec Indicator -->
+                <div id="recording-indicator" class="rec-indicator d-none mb-3">
+                    <i class="fas fa-circle text-danger"></i> SEDANG MEREKAM SUARA...
+                </div>
+
+                <!-- Gameplay Buttons -->
+                <div class="d-flex justify-content-center gap-3">
+                    <button id="btn-done" class="btn-game btn-game-primary px-4">
+                        <i class="fas fa-check"></i> Selesai Cerita
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Screen (Hidden Initially) -->
+            <div id="results-screen" class="d-none">
+                <h3 class="text-white fw-bold mb-2">Hebat, Cerita Selesai! 🎉</h3>
+                <p class="text-muted mb-4">Waktunya melakukan evaluasi mandiri atau bersama teman-teman.</p>
+                
+                <!-- Playback Panel -->
+                <div class="row justify-content-center mb-4">
+                    <div class="col-md-7 bg-dark p-4 rounded border border-secondary">
+                        <h5 class="text-white mb-3">🎤 Putar Ulang Suara Rekaman</h5>
+                        <div id="no-audio-msg" class="small text-white-50 mb-3">Perekam suara tidak didukung atau izin mikrofon ditolak.</div>
+                        <div id="audio-playback-div" class="d-none">
+                            <audio id="audio-playback" controls class="w-100 mb-3"></audio>
+                        </div>
+                        
+                        <!-- Submit panel -->
+                        <hr class="border-secondary my-3">
+                        <h6 class="text-white mb-2 text-start">📤 Kirim Skor Permainan</h6>
+                        <p class="small text-muted text-start mb-3">Jika berhasil menghubungkan semua kata dengan baik, klik kirim untuk mendokumentasikan nilai Anda.</p>
+                        
+                        <button id="btn-submit-score" class="btn-game btn-game-success w-100 py-2" style="font-size:0.9rem;">
+                            <i class="fas fa-cloud-upload-alt"></i> Kirim Keberhasilan ke Google Sheets
+                        </button>
+                        <div id="submit-status" class="small mt-2 text-center" style="display:none;"></div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <button id="btn-restart" class="btn-game btn-game-primary">
+                        <i class="fas fa-redo"></i> Main Lagi
+                    </button>
+                    <a href="../index.html#games" class="btn-game btn-game-secondary">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <!-- Sheets configuration placeholder -->
+            <div id="sheets-config-container"></div>
+        </div>
+    </div>
+
+    <!-- Script Links -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="game-utils.js"></script>
+    <script>
+        const wordPool = [
+            "Kucing", "Ujian", "Hujan", "Seblak", "Alien", "Kasur", "Sate", "Sepatu", 
+            "Hantu", "Pacar", "Sepeda", "Bakso", "Sekolah", "Laptop", "Buku", "Presiden", 
+            "Cinta", "Dompet", "Pulpen", "Bandara", "Laut", "Pesawat", "Gunung", "Bunga",
+            "Meme", "Dosen", "TikTok", "Bakso", "Kopi", "Pantai", "Kado", "Minyak", 
+            "Kunci", "Cermin", "Pintu", "Kura-kura", "Es Krim", "Senter", "Domba", "Gitar"
+        ];
+
+        // State variables
+        let timer = null;
+        let timeLeft = 60;
+        let isPaused = false;
+        let selectedWords = [];
+        let playerName = "";
+        
+        // Recording variables
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let audioBlob = null;
+        let audioUrl = null;
+        let stream = null;
+
+        const totalDuration = 60; // 60 seconds
+        const strokeDashArray = 440; 
+
+        // Elements
+        const setupScreen = document.getElementById('setup-screen');
+        const gameBoard = document.getElementById('game-board');
+        const resultsScreen = document.getElementById('results-screen');
+        
+        const playerNameInput = document.getElementById('player-name');
+        
+        const w1Box = document.getElementById('word-1');
+        const w2Box = document.getElementById('word-2');
+        const w3Box = document.getElementById('word-3');
+        
+        const timerProgress = document.getElementById('timer-progress');
+        const timerText = document.getElementById('timer-text');
+        const recIndicator = document.getElementById('recording-indicator');
+        
+        const btnStart = document.getElementById('btn-start');
+        const btnDone = document.getElementById('btn-done');
+        const btnRestart = document.getElementById('btn-restart');
+        
+        const audioPlaybackDiv = document.getElementById('audio-playback-div');
+        const audioPlayback = document.getElementById('audio-playback');
+        const noAudioMsg = document.getElementById('no-audio-msg');
+        
+        const btnSubmitScore = document.getElementById('btn-submit-score');
+        const submitStatus = document.getElementById('submit-status');
+
+        // Initial setup
+        btnStart.addEventListener('click', startStory);
+        btnDone.addEventListener('click', finishStory);
+        btnRestart.addEventListener('click', restartGame);
+        btnSubmitScore.addEventListener('click', submitScore);
+
+        async function startStory() {
+            playerName = playerNameInput.value.trim() || "Pemain 1";
+            
+            // Pick 3 unique random words
+            selectedWords = [];
+            while(selectedWords.length < 3) {
+                const randWord = wordPool[Math.floor(Math.random() * wordPool.length)];
+                if(!selectedWords.includes(randWord)) {
+                    selectedWords.push(randWord);
+                }
+            }
+            
+            w1Box.textContent = selectedWords[0];
+            w2Box.textContent = selectedWords[1];
+            w3Box.textContent = selectedWords[2];
+            
+            // Transition screen
+            setupScreen.classList.add('d-none');
+            gameBoard.classList.remove('d-none');
+            resultsScreen.classList.add('d-none');
+            
+            // Start recording
+            audioChunks = [];
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                mediaRecorder.ondataavailable = (event) => {
+                    audioChunks.push(event.data);
+                };
+                mediaRecorder.onstop = () => {
+                    audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    audioUrl = URL.createObjectURL(audioBlob);
+                    audioPlayback.src = audioUrl;
+                    audioPlaybackDiv.classList.remove('d-none');
+                    noAudioMsg.classList.add('d-none');
+                };
+                mediaRecorder.start();
+                recIndicator.classList.remove('d-none');
+            } catch(e) {
+                console.warn("Recording not supported or permission denied", e);
+                noAudioMsg.classList.remove('d-none');
+                audioPlaybackDiv.classList.add('d-none');
+            }
+            
+            startTimer();
+            BPSAudio.playDing();
+        }
+
+        function startTimer() {
+            clearInterval(timer);
+            timeLeft = totalDuration;
+            updateTimerDisplay();
+            
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if (timeLeft <= 5 && timeLeft > 0) {
+                    BPSAudio.playTick();
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    BPSAudio.playBuzzer();
+                    finishStory();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            timerText.textContent = timeLeft;
+            
+            // Update circular svg
+            const pct = timeLeft / totalDuration;
+            const offset = strokeDashArray - (pct * strokeDashArray);
+            timerProgress.style.strokeDashoffset = offset;
+            
+            // Color changing progress
+            if (timeLeft <= 10) {
+                timerProgress.style.stroke = '#ef4444'; // danger red
+            } else {
+                timerProgress.style.stroke = '#7f1d1d'; // normal maroon
+            }
+        }
+
+        function finishStory() {
+            clearInterval(timer);
+            
+            // Stop recorder
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                recIndicator.classList.add('d-none');
+                
+                // Stop tracks to release mic icon
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                }
+            }
+            
+            gameBoard.classList.add('d-none');
+            resultsScreen.classList.remove('d-none');
+            BPSAudio.playSuccess();
+        }
+
+        function restartGame() {
+            resultsScreen.classList.add('d-none');
+            setupScreen.classList.remove('d-none');
+            submitStatus.style.display = 'none';
+            audioPlayback.src = '';
+            audioPlaybackDiv.classList.add('d-none');
+            noAudioMsg.classList.remove('d-none');
+        }
+
+        async function submitScore() {
+            btnSubmitScore.disabled = true;
+            submitStatus.style.display = 'block';
+            submitStatus.style.color = '#fbbf24';
+            submitStatus.textContent = '⏳ Mengirim data...';
+            
+            const detail = `Menghubungkan kata: [${selectedWords.join(', ')}] | Waktu tersisa: ${timeLeft}s`;
+            const res = await BPSScores.submitScore("Cerita dari 3 Kata", playerName, "100", detail);
+            
+            submitStatus.style.color = res.success ? '#10b981' : '#f87171';
+            submitStatus.textContent = res.message;
+            btnSubmitScore.disabled = false;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jawab Kilat | BPS Games</title>
+    <!-- CSS Links -->
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+    <style>
+        .rapid-progress-bar-container {
+            width: 100%;
+            height: 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .rapid-progress-bar {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, var(--primary-maroon), #ef4444);
+            transition: width 0.1s linear;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Nav Bar -->
+    <nav class="game-nav">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a href="../index.html#games" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Kembali ke Dashboard
+            </a>
+            <span class="fw-bold text-danger m-0">BLASMAN PUBLIC SPEAKING</span>
+        </div>
+    </nav>
+
+    <!-- Main Game Area -->
+    <div class="game-container">
+        <div class="glass-card text-center">
+            <div class="mb-3">
+                <span class="badge bg-danger rounded-pill px-3 py-2 text-uppercase">Game #6</span>
+            </div>
+            <h1 class="game-title">Jawab Kilat</h1>
+            <p class="game-desc">
+                Latih kecepatan berpikir dan spontanitas! Jawab pertanyaan acak yang dibacakan secara otomatis oleh robot browser. Anda hanya memiliki waktu <strong>3 detik</strong> untuk menjawab secara lisan dan menekan tombol lanjut!
+            </p>
+
+            <!-- Setup Screen -->
+            <div id="setup-screen">
+                <div class="row justify-content-center mb-4">
+                    <div class="col-md-8">
+                        <div class="mb-4 text-start">
+                            <label class="form-label text-white-50 fw-bold">Nama Peserta:</label>
+                            <input type="text" id="player-name" class="config-input" value="Pemain 1" placeholder="Masukkan nama Anda">
+                        </div>
+                        <button id="btn-start" class="btn-game btn-game-primary w-100 py-3">
+                            <i class="fas fa-bolt"></i> Mulai Jawab Kilat
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Board (Hidden Initially) -->
+            <div id="game-board" class="d-none">
+                <!-- Question indicator -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span id="question-index" class="badge bg-danger px-3 py-1">Pertanyaan 1 / 10</span>
+                    <span id="answered-badge" class="badge bg-success px-3 py-1">Terjawab: 0</span>
+                </div>
+
+                <!-- 3s Linear Progress bar -->
+                <div class="rapid-progress-bar-container">
+                    <div id="rapid-progress" class="rapid-progress-bar"></div>
+                </div>
+
+                <!-- Large Question box -->
+                <div id="question-box" class="rapid-question-box">
+                    Memuat pertanyaan...
+                </div>
+                
+                <div class="text-white-50 small mb-4">
+                    🔊 Pertanyaan dibacakan otomatis. Jawab langsung dan klik tombol di bawah sebelum waktu habis!
+                </div>
+
+                <!-- Gameplay Buttons -->
+                <div class="d-flex justify-content-center gap-3">
+                    <button id="btn-answer-success" class="btn-game btn-game-success px-5 py-3 w-100">
+                        <i class="fas fa-check"></i> Jawab & Lanjut (Enter)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Screen (Hidden Initially) -->
+            <div id="results-screen" class="d-none">
+                <h3 class="text-white fw-bold mb-2">Sesi Selesai! 🎉</h3>
+                <p class="text-muted mb-4">Berikut adalah total pertanyaan yang berhasil Anda jawab dalam batas waktu 3 detik.</p>
+                
+                <div class="row justify-content-center gap-3 my-4">
+                    <div class="col-md-6 bg-dark p-4 rounded border border-secondary text-center">
+                        <div class="score-label">Pertanyaan Terjawab Kilat</div>
+                        <div id="total-score-val" class="score-value mt-2">0 / 10</div>
+                        <p class="small text-muted mt-2">Setiap pertanyaan terjawab bernilai 10 poin.</p>
+                        
+                        <hr class="border-secondary my-3">
+                        <button id="btn-submit-score" class="btn-game btn-game-success w-100 py-2" style="font-size:0.9rem;">
+                            <i class="fas fa-cloud-upload-alt"></i> Kirim Skor ke Google Sheets
+                        </button>
+                        <div id="submit-status" class="small mt-2 text-center" style="display:none;"></div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <button id="btn-restart" class="btn-game btn-game-primary">
+                        <i class="fas fa-redo"></i> Main Lagi
+                    </button>
+                    <a href="../index.html#games" class="btn-game btn-game-secondary">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <!-- Sheets configuration placeholder -->
+            <div id="sheets-config-container"></div>
+        </div>
+    </div>
+
+    <!-- Script Links -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="game-utils.js"></script>
+    <script>
+        const questionPool = [
+            "Pilih bakso atau mie ayam?",
+            "Bumi itu bulat atau datar?",
+            "Uang satu miliar atau pacar setia?",
+            "Nasi goreng kecap manis atau nasi goreng putih gurih?",
+            "Liburan mendaki gunung atau bersantai di pantai?",
+            "Lebih baik telat masuk kelas atau lupa bawa tugas?",
+            "Ponsel pintar ketinggalan atau dompet ketinggalan?",
+            "Nonton konser musik langsung atau mabar game online?",
+            "Kucing manja pemalas atau anjing setia penurut?",
+            "Pintar matematika tapi kaku, atau jago ngomong tapi malas belajar?",
+            "Tidur larut malam atau bangun pagi buta?",
+            "Makan makanan pedas level sepuluh atau tidak pedas sama sekali?",
+            "Pilih tinggal di kota metropolitan atau desa pedesaan?",
+            "Dua hari tanpa kuota internet atau dua hari tanpa mandi?",
+            "Bisa terbang ke langit atau bisa menghilang dari pandangan?",
+            "Lebih suka makan buah apel atau buah jeruk?",
+            "Kerja kantoran mapan atau jadi pengusaha kreatif?",
+            "Lebih seru belajar bahasa baru atau belajar coding?",
+            "Pilih naik motor kebut atau naik mobil santai?",
+            "Pilih jujur tapi menyakitkan atau bohong demi kebaikan?"
+        ];
+
+        // Game configuration
+        const totalRoundQuestions = 10;
+        const timeLimitMs = 3000; // 3 seconds
+        const updateIntervalMs = 50; // Update progress bar every 50ms
+
+        // State variables
+        let timer = null;
+        let elapsedMs = 0;
+        let currentQuestionIndex = 0;
+        let successCount = 0;
+        let activeQuestionList = [];
+        let playerName = "";
+        
+        // Voice Synthesis TTS
+        let ttsVoice = null;
+
+        // Elements
+        const setupScreen = document.getElementById('setup-screen');
+        const gameBoard = document.getElementById('game-board');
+        const resultsScreen = document.getElementById('results-screen');
+        
+        const playerNameInput = document.getElementById('player-name');
+        const questionIndexText = document.getElementById('question-index');
+        const answeredBadge = document.getElementById('answered-badge');
+        const rapidProgress = document.getElementById('rapid-progress');
+        const questionBox = document.getElementById('question-box');
+        
+        const btnStart = document.getElementById('btn-start');
+        const btnAnswerSuccess = document.getElementById('btn-answer-success');
+        const btnRestart = document.getElementById('btn-restart');
+        
+        const totalScoreVal = document.getElementById('total-score-val');
+        const btnSubmitScore = document.getElementById('btn-submit-score');
+        const submitStatus = document.getElementById('submit-status');
+
+        // Setup voices on load
+        if ('speechSynthesis' in window) {
+            const findIndonesianVoice = () => {
+                const voices = window.speechSynthesis.getVoices();
+                // Look for id-ID (Indonesian) voice
+                ttsVoice = voices.find(v => v.lang.includes('id') || v.lang.includes('ID'));
+            };
+            findIndonesianVoice();
+            if (window.speechSynthesis.onvoiceschanged !== undefined) {
+                window.speechSynthesis.onvoiceschanged = findIndonesianVoice;
+            }
+        }
+
+        // Initial setup
+        btnStart.addEventListener('click', startGame);
+        btnAnswerSuccess.addEventListener('click', recordAnswerSuccess);
+        btnRestart.addEventListener('click', restartGame);
+        btnSubmitScore.addEventListener('click', submitScore);
+        
+        // Listen to 'Enter' key for quick answers
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && isGameBoardVisible()) {
+                e.preventDefault();
+                recordAnswerSuccess();
+            }
+        });
+
+        function isGameBoardVisible() {
+            return !gameBoard.classList.contains('d-none');
+        }
+
+        function startGame() {
+            playerName = playerNameInput.value.trim() || "Pemain 1";
+            
+            // Randomly select 10 questions for this session
+            activeQuestionList = [];
+            let poolCopy = [...questionPool];
+            for (let i = 0; i < totalRoundQuestions; i++) {
+                if (poolCopy.length === 0) poolCopy = [...questionPool];
+                const randIndex = Math.floor(Math.random() * poolCopy.length);
+                activeQuestionList.push(poolCopy.splice(randIndex, 1)[0]);
+            }
+            
+            currentQuestionIndex = 0;
+            successCount = 0;
+            
+            // Transition Screen
+            setupScreen.classList.add('d-none');
+            gameBoard.classList.remove('d-none');
+            resultsScreen.classList.add('d-none');
+            
+            loadNextQuestion();
+        }
+
+        function loadNextQuestion() {
+            if (currentQuestionIndex < totalRoundQuestions) {
+                // Update header tags
+                questionIndexText.textContent = `Pertanyaan ${currentQuestionIndex + 1} / ${totalRoundQuestions}`;
+                answeredBadge.textContent = `Terjawab: ${successCount}`;
+                
+                const qText = activeQuestionList[currentQuestionIndex];
+                questionBox.textContent = qText;
+                
+                // Read text aloud
+                speakQuestion(qText);
+                
+                // Start Progress Timer
+                startQuestionTimer();
+            } else {
+                finishGame();
+            }
+        }
+
+        function speakQuestion(text) {
+            if ('speechSynthesis' in window) {
+                // Cancel ongoing speak
+                window.speechSynthesis.cancel();
+                
+                const cleanText = text.replace(/[?|!]/g, ''); // strip punctuation for cleaner robot speech
+                const utterance = new SpeechSynthesisUtterance(cleanText);
+                utterance.lang = 'id-ID';
+                if (ttsVoice) {
+                    utterance.voice = ttsVoice;
+                }
+                utterance.rate = 1.15; // slightly faster reading
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        function startQuestionTimer() {
+            clearInterval(timer);
+            elapsedMs = 0;
+            updateProgressBar();
+            
+            timer = setInterval(() => {
+                elapsedMs += updateIntervalMs;
+                updateProgressBar();
+                
+                if (elapsedMs >= timeLimitMs) {
+                    clearInterval(timer);
+                    BPSAudio.playBuzzer();
+                    handleQuestionTimeout();
+                }
+            }, updateIntervalMs);
+        }
+
+        function updateProgressBar() {
+            const percentage = 100 - ((elapsedMs / timeLimitMs) * 100);
+            rapidProgress.style.width = `${Math.max(0, percentage)}%`;
+            
+            // Color changing progress indicator
+            if (percentage <= 30) {
+                rapidProgress.style.background = '#ef4444'; // red
+            } else {
+                rapidProgress.style.background = 'linear-gradient(90deg, var(--primary-maroon), #ef4444)'; // maroon
+            }
+        }
+
+        function recordAnswerSuccess() {
+            if (elapsedMs >= timeLimitMs) return; // ignore if timed out
+            
+            clearInterval(timer);
+            successCount++;
+            BPSAudio.playDing();
+            
+            // Go to next
+            currentQuestionIndex++;
+            loadNextQuestion();
+        }
+
+        function handleQuestionTimeout() {
+            // Flash red on question box
+            questionBox.style.background = 'rgba(239, 68, 68, 0.2)';
+            questionBox.style.borderColor = '#ef4444';
+            
+            setTimeout(() => {
+                questionBox.style.background = 'rgba(127, 29, 29, 0.1)';
+                questionBox.style.borderColor = 'rgba(127, 29, 29, 0.2)';
+                currentQuestionIndex++;
+                loadNextQuestion();
+            }, 800);
+        }
+
+        function finishGame() {
+            clearInterval(timer);
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+            }
+            
+            gameBoard.classList.add('d-none');
+            resultsScreen.classList.remove('d-none');
+            
+            totalScoreVal.textContent = `${successCount} / ${totalRoundQuestions} (${successCount * 10} Poin)`;
+            BPSAudio.playSuccess();
+        }
+
+        function restartGame() {
+            resultsScreen.classList.add('d-none');
+            setupScreen.classList.remove('d-none');
+            submitStatus.style.display = 'none';
+        }
+
+        async function submitScore() {
+            btnSubmitScore.disabled = true;
+            submitStatus.style.display = 'block';
+            submitStatus.style.color = '#fbbf24';
+            submitStatus.textContent = '⏳ Mengirim data...';
+            
+            const detail = `Terjawab: ${successCount} dari 10 pertanyaan | Waktu rata-rata < 3 detik`;
+            const scorePoints = (successCount * 10).toString();
+            const res = await BPSScores.submitScore("Jawab Kilat", playerName, scorePoints, detail);
+            
+            submitStatus.style.color = res.success ? '#10b981' : '#f87171';
+            submitStatus.textContent = res.message;
+            btnSubmitScore.disabled = false;
+        }
+    </script>
+</body>
+</html>

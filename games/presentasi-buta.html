@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Presentasi Buta | BPS Games</title>
+    <!-- CSS Links -->
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+    <style>
+        .slide-frame {
+            min-height: 420px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(127, 29, 29, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: inset 0 0 20px rgba(127, 29, 29, 0.1);
+        }
+        .slide-body-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            margin: 1.5rem 0;
+        }
+        .slide-image {
+            width: 100%;
+            max-width: 320px;
+            aspect-ratio: 4 / 3;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Nav Bar -->
+    <nav class="game-nav">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a href="../index.html#games" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Kembali ke Dashboard
+            </a>
+            <span class="fw-bold text-danger m-0">BLASMAN PUBLIC SPEAKING</span>
+        </div>
+    </nav>
+
+    <!-- Main Game Area -->
+    <div class="game-container">
+        <div class="glass-card text-center">
+            <div class="mb-3">
+                <span class="badge bg-danger rounded-pill px-3 py-2 text-uppercase">Game #5</span>
+            </div>
+            <h1 class="game-title">Presentasi Buta (Blind Presentation)</h1>
+            <p class="game-desc">
+                Siapkan slide presentasi secara instan! Peserta diberikan satu topik presentasi acak, lalu harus mempresentasikan slide yang isinya gambar lucu absurd dan berubah acak secara dinamis.
+            </p>
+
+            <!-- Setup Screen -->
+            <div id="setup-screen">
+                <div class="row justify-content-center mb-4">
+                    <div class="col-md-8 text-start">
+                        <div class="mb-3">
+                            <label class="form-label text-white-50 fw-bold">Nama Presenter:</label>
+                            <input type="text" id="player-name" class="config-input" value="Pemain 1" placeholder="Masukkan nama Anda">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label text-white-50 fw-bold">Mode Pergantian Slide:</label>
+                            <select id="slide-mode" class="config-input w-100">
+                                <option value="auto" selected>Otomatis (Tiap 15 Detik)</option>
+                                <option value="manual">Manual (Klik tombol 'Next')</option>
+                            </select>
+                        </div>
+                        
+                        <button id="btn-start" class="btn-game btn-game-primary w-100 py-3">
+                            <i class="fas fa-desktop"></i> Generate Slide & Mulai
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Board (Hidden Initially) -->
+            <div id="game-board" class="d-none">
+                <!-- Slide Frame -->
+                <div class="slide-frame text-center mb-4">
+                    <div class="slide-header">
+                        <span id="slide-index" class="slide-number">SLIDE 1/4</span>
+                        <div id="slide-topic-badge" class="badge bg-danger rounded-pill px-3 py-1">Topik Presentasi</div>
+                    </div>
+                    
+                    <div class="slide-body-content">
+                        <h3 id="slide-title" class="text-white fw-bold mb-3">Judul Slide</h3>
+                        <img id="slide-img" src="" alt="Slide Absurd" class="slide-image">
+                    </div>
+                    
+                    <div class="text-muted small">
+                        Pikirkan cara menyambungkan gambar di atas dengan topik Anda: 
+                        <strong id="current-presentation-topic" class="text-danger">"Cara Bertahan Hidup"</strong>
+                    </div>
+                </div>
+
+                <!-- Timer Circular (Only active in auto mode) -->
+                <div id="timer-panel" class="timer-container my-3">
+                    <svg class="timer-svg">
+                        <circle class="timer-circle-bg" cx="80" cy="80" r="70"></circle>
+                        <circle id="timer-progress" class="timer-circle-progress" cx="80" cy="80" r="70" stroke-dasharray="440" stroke-dashoffset="0"></circle>
+                    </svg>
+                    <div id="timer-text" class="timer-text">15</div>
+                </div>
+
+                <!-- Gameplay Buttons -->
+                <div class="d-flex justify-content-center gap-3">
+                    <button id="btn-next-slide" class="btn-game btn-game-primary px-4">
+                        <i class="fas fa-arrow-right"></i> Next Slide
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Screen (Hidden Initially) -->
+            <div id="results-screen" class="d-none">
+                <h3 class="text-white fw-bold mb-2">Presentasi Selesai! 🎉</h3>
+                <p class="text-muted mb-4">Berikan penilaian Anda mengenai seberapa mulus presenter menghubungkan gambar absurd dengan topiknya.</p>
+                
+                <div class="row justify-content-center gap-3 my-4">
+                    <div class="col-md-6 bg-dark p-4 rounded border border-secondary text-start">
+                        <h5 class="text-white mb-3">🗳️ Evaluasi Improvisasi</h5>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-white-50 small fw-bold">1. Kecepatan Berpikir & Adaptasi (Adaptability)</label>
+                            <select id="score-adapt" class="config-input w-100">
+                                <option value="95">Luar Biasa Cepat (90-100)</option>
+                                <option value="85" selected>Cukup Cepat & Nyambung (80-89)</option>
+                                <option value="75">Biasa Saja (70-79)</option>
+                                <option value="60">Gagap / Bingung Menghubungkan (60-69)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-white-50 small fw-bold">2. Alur Cerita & Struktur (Storytelling Flow)</label>
+                            <select id="score-flow" class="config-input w-100">
+                                <option value="90">Sangat Masuk Akal & Rapi (90-100)</option>
+                                <option value="80" selected>Cukup Nyambung (80-89)</option>
+                                <option value="70">Sedikit Memaksa Hubungannya (70-79)</option>
+                                <option value="60">Tidak Nyambung Sama Sekali (60-69)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="score-label mt-4">Total Nilai Presentasi:</div>
+                        <div id="total-score-val" class="score-value mt-1">83</div>
+                        
+                        <hr class="border-secondary my-3">
+                        <button id="btn-submit-score" class="btn-game btn-game-success w-100 py-2" style="font-size:0.9rem;">
+                            <i class="fas fa-cloud-upload-alt"></i> Kirim Skor ke Google Sheets
+                        </button>
+                        <div id="submit-status" class="small mt-2 text-center" style="display:none;"></div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <button id="btn-restart" class="btn-game btn-game-primary">
+                        <i class="fas fa-redo"></i> Main Lagi
+                    </button>
+                    <a href="../index.html#games" class="btn-game btn-game-secondary">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <!-- Sheets configuration placeholder -->
+            <div id="sheets-config-container"></div>
+        </div>
+    </div>
+
+    <!-- Script Links -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="game-utils.js"></script>
+    <script>
+        // List of funny presentation topics
+        const presentationTopics = [
+            "Cara Sukses Menjadi Miliarder Lewat Jalur Rebahan 🛌",
+            "Mengapa Makan Seblak Pedas Level 10 Bagus untuk Jantung 🌶️",
+            "Strategi Ampuh Melarikan Diri dari Kejaran Kucing Oren 🐈",
+            "Mengapa Tidur Siang di Kelas Meningkatkan Kecerdasan Otak 🧠",
+            "Panduan Bertahan Hidup Jika Kiamat Zombie Berupa Pisang Berjalan 🍌",
+            "Cara Menjinakkan Alien Menggunakan Semangkuk Bakso Urat 🛸",
+            "Mengapa Guru Harus Memaklumi Siswa yang Kesiangan Karena Mimpi Indah 💭",
+            "Teori Konspirasi: Pigeons (Merpati) Adalah Robot Mata-Mata Pemerintah 🐦"
+        ];
+
+        // Absurd images pool
+        const slideImages = [
+            "../img/absurd/cat-podium.png",
+            "../img/absurd/astro-seblak.png",
+            "../img/absurd/dog-math.png",
+            "../img/absurd/alien-bananas.png",
+            "../img/absurd/chicken-egg.png"
+        ];
+
+        // Custom slide subtitles based on steps
+        const slideSubtitles = [
+            "Pendahuluan & Latar Belakang Masalah",
+            "Data Ilmiah dan Bukti Mengejutkan",
+            "Solusi Aneh tapi Nyata",
+            "Kesimpulan dan Masa Depan Umat Manusia"
+        ];
+
+        // State variables
+        let timer = null;
+        let timeLeft = 15;
+        let currentSlide = 1;
+        const totalSlides = 4;
+        let isAutoMode = true;
+        let selectedTopic = "";
+        let playerName = "";
+        let usedImages = [];
+
+        const slideDuration = 15; // 15 seconds per slide
+        const strokeDashArray = 440;
+
+        // Elements
+        const setupScreen = document.getElementById('setup-screen');
+        const gameBoard = document.getElementById('game-board');
+        const resultsScreen = document.getElementById('results-screen');
+        
+        const playerNameInput = document.getElementById('player-name');
+        const slideModeInput = document.getElementById('slide-mode');
+        
+        const slideIndexDisplay = document.getElementById('slide-index');
+        const slideTitleDisplay = document.getElementById('slide-title');
+        const slideImgDisplay = document.getElementById('slide-img');
+        const currentPresentationTopic = document.getElementById('current-presentation-topic');
+        
+        const timerPanel = document.getElementById('timer-panel');
+        const timerProgress = document.getElementById('timer-progress');
+        const timerText = document.getElementById('timer-text');
+        
+        const btnNextSlide = document.getElementById('btn-next-slide');
+        const btnStart = document.getElementById('btn-start');
+        const btnRestart = document.getElementById('btn-restart');
+        
+        const scoreAdapt = document.getElementById('score-adapt');
+        const scoreFlow = document.getElementById('score-flow');
+        const totalScoreVal = document.getElementById('total-score-val');
+        const btnSubmitScore = document.getElementById('btn-submit-score');
+        const submitStatus = document.getElementById('submit-status');
+
+        // Setup Event listeners
+        btnStart.addEventListener('click', startPresentation);
+        btnNextSlide.addEventListener('click', nextSlide);
+        btnRestart.addEventListener('click', restartGame);
+        btnSubmitScore.addEventListener('click', submitScore);
+        
+        // Dynamic score updates
+        const updateScores = () => {
+            const aVal = parseInt(scoreAdapt.value);
+            const fVal = parseInt(scoreFlow.value);
+            totalScoreVal.textContent = Math.round((aVal + fVal) / 2);
+        };
+        scoreAdapt.addEventListener('change', updateScores);
+        scoreFlow.addEventListener('change', updateScores);
+
+        function startPresentation() {
+            playerName = playerNameInput.value.trim() || "Pemain 1";
+            isAutoMode = (slideModeInput.value === 'auto');
+            
+            // Randomly pick presentation topic
+            selectedTopic = presentationTopics[Math.floor(Math.random() * presentationTopics.length)];
+            currentPresentationTopic.textContent = `"${selectedTopic}"`;
+            
+            // Reset variables
+            currentSlide = 1;
+            usedImages = [];
+            
+            // Render first slide
+            renderSlide();
+            
+            // Transition Screen
+            setupScreen.classList.add('d-none');
+            gameBoard.classList.remove('d-none');
+            resultsScreen.classList.add('d-none');
+            
+            if (isAutoMode) {
+                timerPanel.classList.remove('d-none');
+                startSlideTimer();
+            } else {
+                timerPanel.classList.add('d-none');
+            }
+            
+            BPSAudio.playDing();
+        }
+
+        function renderSlide() {
+            slideIndexDisplay.textContent = `SLIDE ${currentSlide}/${totalSlides}`;
+            slideTitleDisplay.textContent = slideSubtitles[currentSlide - 1];
+            
+            // Find a unique slide image
+            let img = "";
+            do {
+                img = slideImages[Math.floor(Math.random() * slideImages.length)];
+            } while (usedImages.includes(img) && usedImages.length < slideImages.length);
+            
+            usedImages.push(img);
+            slideImgDisplay.src = img;
+            
+            // Update button text on last slide
+            if (currentSlide === totalSlides) {
+                btnNextSlide.innerHTML = `<i class="fas fa-check"></i> Selesai Presentasi`;
+            } else {
+                btnNextSlide.innerHTML = `<i class="fas fa-arrow-right"></i> Next Slide`;
+            }
+        }
+
+        function startSlideTimer() {
+            clearInterval(timer);
+            timeLeft = slideDuration;
+            updateTimerDisplay();
+            
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if (timeLeft <= 3 && timeLeft > 0) {
+                    BPSAudio.playTick();
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    BPSAudio.playBuzzer();
+                    nextSlide();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            timerText.textContent = timeLeft;
+            const pct = timeLeft / slideDuration;
+            const offset = strokeDashArray - (pct * strokeDashArray);
+            timerProgress.style.strokeDashoffset = offset;
+            
+            if (timeLeft <= 3) {
+                timerProgress.style.stroke = '#ef4444';
+            } else {
+                timerProgress.style.stroke = '#7f1d1d';
+            }
+        }
+
+        function nextSlide() {
+            clearInterval(timer);
+            if (currentSlide < totalSlides) {
+                currentSlide++;
+                renderSlide();
+                BPSAudio.playDing();
+                if (isAutoMode) {
+                    startSlideTimer();
+                }
+            } else {
+                finishPresentation();
+            }
+        }
+
+        function finishPresentation() {
+            clearInterval(timer);
+            gameBoard.classList.add('d-none');
+            resultsScreen.classList.remove('d-none');
+            updateScores();
+            BPSAudio.playSuccess();
+        }
+
+        function restartGame() {
+            resultsScreen.classList.add('d-none');
+            setupScreen.classList.remove('d-none');
+            submitStatus.style.display = 'none';
+        }
+
+        async function submitScore() {
+            btnSubmitScore.disabled = true;
+            submitStatus.style.display = 'block';
+            submitStatus.style.color = '#fbbf24';
+            submitStatus.textContent = '⏳ Mengirim data...';
+            
+            const detail = `Topik: "${selectedTopic}" | Adaptabilitas: ${scoreAdapt.value} | Alur Cerita: ${scoreFlow.value}`;
+            const res = await BPSScores.submitScore("Presentasi Buta", playerName, totalScoreVal.textContent, detail);
+            
+            submitStatus.style.color = res.success ? '#10b981' : '#f87171';
+            submitStatus.textContent = res.message;
+            btnSubmitScore.disabled = false;
+        }
+    </script>
+</body>
+</html>

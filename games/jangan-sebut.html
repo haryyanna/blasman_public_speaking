@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jangan Sebut Kata Itu! | BPS Games</title>
+    <!-- CSS Links -->
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Nav Bar -->
+    <nav class="game-nav">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a href="../index.html#games" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Kembali ke Dashboard
+            </a>
+            <span class="fw-bold text-danger m-0">BLASMAN PUBLIC SPEAKING</span>
+        </div>
+    </nav>
+
+    <!-- Main Game Area -->
+    <div class="game-container">
+        <div class="glass-card text-center">
+            <div class="mb-3">
+                <span class="badge bg-danger rounded-pill px-3 py-2 text-uppercase">Game #2</span>
+            </div>
+            <h1 class="game-title">Jangan Sebut Kata Itu!</h1>
+            <p class="game-desc">
+                Berceritalah tentang topik yang diberikan selama 1 menit. Tapi hati-hati, jangan ucapkan 3 kata terlarang! Menggunakan sensor suara otomatis & tombol buzzer manual.
+            </p>
+
+            <!-- Setup Screen -->
+            <div id="setup-screen">
+                <div class="row justify-content-center mb-4">
+                    <div class="col-md-8 text-start">
+                        <div class="mb-3">
+                            <label class="form-label text-white-50 fw-bold">Nama Pembicara:</label>
+                            <input type="text" id="player-name" class="config-input" value="Pemain 1" placeholder="Masukkan nama Anda">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-white-50 fw-bold">Pilih Kata Terlarang Preset:</label>
+                            <select id="forbidden-preset" class="config-input w-100 mb-2">
+                                <option value="easy">Pemula (eee, emm, anu)</option>
+                                <option value="medium" selected>Menengah (aku, dan, tapi)</option>
+                                <option value="hard">Ahli (saya, terus, jadi)</option>
+                                <option value="custom">Kustomisasi Sendiri...</option>
+                            </select>
+                        </div>
+
+                        <!-- Custom words inputs -->
+                        <div id="custom-words-div" class="row g-2 mb-4 d-none">
+                            <div class="col-4">
+                                <input type="text" id="custom-w1" class="config-input text-center" placeholder="Kata 1" value="kamu">
+                            </div>
+                            <div class="col-4">
+                                <input type="text" id="custom-w2" class="config-input text-center" placeholder="Kata 2" value="lalu">
+                            </div>
+                            <div class="col-4">
+                                <input type="text" id="custom-w3" class="config-input text-center" placeholder="Kata 3" value="kok">
+                            </div>
+                        </div>
+
+                        <button id="btn-start" class="btn-game btn-game-primary w-100 py-3 mt-2">
+                            <i class="fas fa-play"></i> Mulai Bercerita
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Board (Hidden Initially) -->
+            <div id="game-board" class="d-none">
+                <!-- Topic Display -->
+                <div class="mb-3">
+                    <h5 class="text-white-50 mb-1">Topik Cerita Anda:</h5>
+                    <div id="topic-box" class="topic-panel">Mencari topik cerita yang seru...</div>
+                </div>
+
+                <!-- Forbidden Words -->
+                <div class="mb-4">
+                    <div class="text-white-50 small mb-2">🚨 KATA TERLARANG (JANGAN DIUCAPKAN!):</div>
+                    <div id="forbidden-badges-container">
+                        <span id="badge-w1" class="forbidden-badge">KATA 1</span>
+                        <span id="badge-w2" class="forbidden-badge">KATA 2</span>
+                        <span id="badge-w3" class="forbidden-badge">KATA 3</span>
+                    </div>
+                </div>
+
+                <!-- Lives/Hearts and Wave -->
+                <div class="row align-items-center mb-3">
+                    <div class="col-6">
+                        <div class="score-label">Sisa Nyawa</div>
+                        <div id="hearts-container" class="heart-indicator mt-1">
+                            <i class="fas fa-heart heart-active"></i>
+                            <i class="fas fa-heart heart-active"></i>
+                            <i class="fas fa-heart heart-active"></i>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="score-label">Waktu Tersisa</div>
+                        <div id="timer-display" class="score-value mt-1">60s</div>
+                    </div>
+                </div>
+
+                <!-- Speech Wave and Status -->
+                <div class="mb-4 bg-dark p-3 rounded border border-secondary">
+                    <div class="mic-status">
+                        <div id="mic-dot" class="mic-inactive-dot"></div>
+                        <span id="mic-text" class="small text-muted">Sensor suara mati</span>
+                    </div>
+                    
+                    <div id="audio-wave-container" class="audio-wave">
+                        <div class="audio-bar"></div>
+                        <div class="audio-bar"></div>
+                        <div class="audio-bar"></div>
+                        <div class="audio-bar"></div>
+                        <div class="audio-bar"></div>
+                        <div class="audio-bar"></div>
+                        <div class="audio-bar"></div>
+                        <div class="audio-bar"></div>
+                    </div>
+
+                    <div id="speech-transcript" class="speech-transcript">
+                        Bicaralah menggunakan mic. Kata-kata Anda akan muncul di sini secara real-time...
+                    </div>
+                </div>
+
+                <!-- Gameplay Buttons -->
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <button id="btn-manual-buzz" class="btn-game btn-game-danger w-100 py-3 text-uppercase">
+                            <i class="fas fa-bullhorn"></i> Buzz Manual! (Juri)
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <button id="btn-give-up" class="btn-game btn-game-secondary w-100 py-3">
+                            <i class="fas fa-stop"></i> Selesai/Menyerah
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Screen (Hidden Initially) -->
+            <div id="results-screen" class="d-none">
+                <div id="result-status-icon" class="mb-3" style="font-size:4rem;">🎉</div>
+                <h3 id="result-status-title" class="text-white fw-bold mb-2">Hebat!</h3>
+                <p id="result-status-desc" class="text-muted mb-4">Anda berhasil bercerita tanpa menyebut kata terlarang.</p>
+                
+                <div class="row justify-content-center gap-3 my-4">
+                    <div class="col-md-5 bg-dark p-3 rounded border border-secondary text-center">
+                        <div class="score-label">Skor Akhir (Detik Bertahan)</div>
+                        <div id="final-score" class="score-value mt-2">60</div>
+                        
+                        <button id="btn-submit-score" class="btn-game btn-game-success w-100 py-2 mt-4" style="font-size:0.9rem;">
+                            <i class="fas fa-cloud-upload-alt"></i> Kirim Skor ke Google Sheets
+                        </button>
+                        <div id="submit-status" class="small mt-2 text-center" style="display:none;"></div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <button id="btn-restart" class="btn-game btn-game-primary">
+                        <i class="fas fa-redo"></i> Main Lagi
+                    </button>
+                    <a href="../index.html#games" class="btn-game btn-game-secondary">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <!-- Sheets configuration placeholder -->
+            <div id="sheets-config-container"></div>
+        </div>
+    </div>
+
+    <!-- Script Links -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="game-utils.js"></script>
+    <script>
+        const topics = [
+            "Pengalaman Tersesat di Tempat Umum",
+            "Liburan Impian ke Bulan atau Mars",
+            "Bertemu Hantu Penunggu Toilet Sekolah",
+            "Hari Pertama Masuk Sekolah Menengah",
+            "Dikejar Anjing Galak Tetangga",
+            "Saat Listrik Padam Seluruh Kota",
+            "Kejadian Paling Memalukan di Kelas",
+            "Menemukan Uang Rp 1 Miliar di Jalan",
+            "Bisa Membaca Pikiran Orang Lain Selama Sehari",
+            "Terjebak di Dalam Lift Bersama Artis Idola",
+            "Petualangan Menjelajah Hutan Belantara",
+            "Rasanya Menjadi Presiden Selama 24 Jam"
+        ];
+
+        // State variables
+        let timer = null;
+        let timeLeft = 60;
+        let lives = 3;
+        let isPlaying = false;
+        let selectedTopic = "";
+        let playerName = "";
+        let forbiddenWords = [];
+        let score = 0;
+        
+        // Speech Recognition API
+        let recognition = null;
+        let isRecognitionActive = false;
+
+        // Elements
+        const setupScreen = document.getElementById('setup-screen');
+        const gameBoard = document.getElementById('game-board');
+        const resultsScreen = document.getElementById('results-screen');
+        
+        const playerNameInput = document.getElementById('player-name');
+        const forbiddenPreset = document.getElementById('forbidden-preset');
+        const customWordsDiv = document.getElementById('custom-words-div');
+        
+        const customW1 = document.getElementById('custom-w1');
+        const customW2 = document.getElementById('custom-w2');
+        const customW3 = document.getElementById('custom-w3');
+        
+        const topicBox = document.getElementById('topic-box');
+        const badgeW1 = document.getElementById('badge-w1');
+        const badgeW2 = document.getElementById('badge-w2');
+        const badgeW3 = document.getElementById('badge-w3');
+        
+        const heartsContainer = document.getElementById('hearts-container');
+        const timerDisplay = document.getElementById('timer-display');
+        const micDot = document.getElementById('mic-dot');
+        const micText = document.getElementById('mic-text');
+        const speechTranscript = document.getElementById('speech-transcript');
+        const audioBars = document.querySelectorAll('.audio-bar');
+        
+        const btnStart = document.getElementById('btn-start');
+        const btnManualBuzz = document.getElementById('btn-manual-buzz');
+        const btnGiveUp = document.getElementById('btn-give-up');
+        const btnRestart = document.getElementById('btn-restart');
+        
+        const resultStatusIcon = document.getElementById('result-status-icon');
+        const resultStatusTitle = document.getElementById('result-status-title');
+        const resultStatusDesc = document.getElementById('result-status-desc');
+        const finalScore = document.getElementById('final-score');
+        const btnSubmitScore = document.getElementById('btn-submit-score');
+        const submitStatus = document.getElementById('submit-status');
+
+        // Setup Event listeners
+        forbiddenPreset.addEventListener('change', () => {
+            if (forbiddenPreset.value === 'custom') {
+                customWordsDiv.classList.remove('d-none');
+            } else {
+                customWordsDiv.classList.add('d-none');
+            }
+        });
+
+        btnStart.addEventListener('click', startGame);
+        btnManualBuzz.addEventListener('click', () => triggerPenalty("Buzzer Manual"));
+        btnGiveUp.addEventListener('click', () => finishGame(false, "Selesai Bercerita"));
+        btnRestart.addEventListener('click', restartGame);
+        btnSubmitScore.addEventListener('click', submitScore);
+
+        // Initialize Speech Recognition
+        function setupSpeechRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                micText.textContent = "Browser tidak mendukung sensor suara otomatis (gunakan buzz manual)";
+                return;
+            }
+
+            recognition = new SpeechRecognition();
+            recognition.lang = 'id-ID';
+            recognition.continuous = true;
+            recognition.interimResults = true;
+
+            recognition.onstart = () => {
+                isRecognitionActive = true;
+                micDot.className = "mic-active-dot";
+                micText.textContent = "Sensor suara aktif (Mendengarkan...)";
+                setWaveActive(true);
+            };
+
+            recognition.onend = () => {
+                isRecognitionActive = false;
+                setWaveActive(false);
+                if (isPlaying) {
+                    // Try to restart if game is still active
+                    try { recognition.start(); } catch(e) {}
+                } else {
+                    micDot.className = "mic-inactive-dot";
+                    micText.textContent = "Sensor suara mati";
+                }
+            };
+
+            recognition.onresult = (event) => {
+                if (!isPlaying) return;
+                
+                let interimTranscript = '';
+                let finalTranscript = '';
+                
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    if (event.results[i].isFinal) {
+                        finalTranscript += event.results[i][0].transcript;
+                    } else {
+                        interimTranscript += event.results[i][0].transcript;
+                    }
+                }
+                
+                const textToCheck = (finalTranscript + ' ' + interimTranscript).toLowerCase();
+                speechTranscript.textContent = `"... ${textToCheck.trim()} ..."`;
+                
+                // Check for forbidden words
+                forbiddenWords.forEach((word, index) => {
+                    const cleanWord = word.toLowerCase().trim();
+                    if (cleanWord && textToCheck.includes(cleanWord)) {
+                        // Word spoken! Trigger penalty
+                        triggerPenalty(word, index + 1);
+                        
+                        // Stop and restart recognition to clear transcript buffer
+                        try {
+                            recognition.stop();
+                        } catch(e) {}
+                    }
+                });
+            };
+
+            recognition.onerror = (e) => {
+                console.error("Speech recognition error", e);
+                if (e.error === 'not-allowed') {
+                    micText.textContent = "Izin mikrofon ditolak. Gunakan tombol manual.";
+                    micDot.className = "mic-inactive-dot";
+                }
+            };
+        }
+
+        function setWaveActive(active) {
+            audioBars.forEach(bar => {
+                if (active) {
+                    bar.classList.add('active');
+                    // Randomize animation delays
+                    bar.style.animationDelay = `${Math.random() * 0.8}s`;
+                } else {
+                    bar.classList.remove('active');
+                }
+            });
+        }
+
+        function startGame() {
+            playerName = playerNameInput.value.trim() || "Pemain 1";
+            
+            // Set words
+            const presetVal = forbiddenPreset.value;
+            if (presetVal === 'easy') {
+                forbiddenWords = ["eee", "emm", "anu"];
+            } else if (presetVal === 'medium') {
+                forbiddenWords = ["aku", "dan", "tapi"];
+            } else if (presetVal === 'hard') {
+                forbiddenWords = ["saya", "terus", "jadi"];
+            } else {
+                forbiddenWords = [
+                    customW1.value.trim() || "kamu",
+                    customW2.value.trim() || "lalu",
+                    customW3.value.trim() || "kok"
+                ];
+            }
+            
+            // Set badges
+            badgeW1.textContent = forbiddenWords[0];
+            badgeW1.className = "forbidden-badge";
+            badgeW2.textContent = forbiddenWords[1];
+            badgeW2.className = "forbidden-badge";
+            badgeW3.textContent = forbiddenWords[2];
+            badgeW3.className = "forbidden-badge";
+            
+            // Generate Topic
+            selectedTopic = topics[Math.floor(Math.random() * topics.length)];
+            topicBox.textContent = selectedTopic;
+            
+            // Game variables
+            timeLeft = 60;
+            lives = 3;
+            isPlaying = true;
+            speechTranscript.textContent = "Bicaralah menggunakan mic. Kata-kata Anda akan muncul di sini secara real-time...";
+            
+            updateHeartsDisplay();
+            timerDisplay.textContent = `${timeLeft}s`;
+            
+            // Transition Screen
+            setupScreen.classList.add('d-none');
+            gameBoard.classList.remove('d-none');
+            resultsScreen.classList.add('d-none');
+            
+            // Setup Speech
+            if (!recognition) {
+                setupSpeechRecognition();
+            }
+            
+            if (recognition) {
+                try { recognition.start(); } catch(e) {}
+            }
+            
+            // Start Timer
+            BPSAudio.playDing();
+            clearInterval(timer);
+            timer = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = `${timeLeft}s`;
+                
+                if (timeLeft <= 0) {
+                    finishGame(true, "Waktu Habis");
+                }
+            }, 1000);
+        }
+
+        function updateHeartsDisplay() {
+            heartsContainer.innerHTML = '';
+            for (let i = 1; i <= 3; i++) {
+                if (i <= lives) {
+                    heartsContainer.innerHTML += `<i class="fas fa-heart heart-active"></i> `;
+                } else {
+                    heartsContainer.innerHTML += `<i class="fas fa-heart heart-empty"></i> `;
+                }
+            }
+        }
+
+        function triggerPenalty(wordSpoken, badgeIndex = null) {
+            if (!isPlaying) return;
+            
+            lives--;
+            updateHeartsDisplay();
+            BPSAudio.playBuzzer();
+            
+            // Flash badge if matched
+            if (badgeIndex) {
+                const badge = document.getElementById(`badge-w${badgeIndex}`);
+                if (badge) {
+                    badge.classList.add('hit');
+                    setTimeout(() => {
+                        badge.classList.remove('hit');
+                    }, 1200);
+                }
+            }
+            
+            if (lives <= 0) {
+                finishGame(false, `Mengucapkan kata terlarang: "${wordSpoken}"`);
+            }
+        }
+
+        function finishGame(isWin, reason) {
+            isPlaying = false;
+            clearInterval(timer);
+            
+            if (recognition) {
+                try { recognition.stop(); } catch(e) {}
+            }
+            
+            gameBoard.classList.add('d-none');
+            resultsScreen.classList.remove('d-none');
+            
+            score = 60 - timeLeft; // Time survived or total time
+            
+            if (isWin) {
+                resultStatusIcon.textContent = "🏆";
+                resultStatusTitle.textContent = "Luar Biasa!";
+                resultStatusDesc.textContent = `Anda berhasil bertahan selama 60 detik tanpa menyebutkan kata terlarang! (${reason})`;
+                finalScore.textContent = 60;
+                BPSAudio.playSuccess();
+            } else {
+                resultStatusIcon.textContent = "💀";
+                resultStatusTitle.textContent = "Tereliminasi!";
+                resultStatusDesc.textContent = `Anda tereliminasi pada detik ke-${score} karena ${reason}.`;
+                finalScore.textContent = score;
+            }
+        }
+
+        function restartGame() {
+            resultsScreen.classList.add('d-none');
+            setupScreen.classList.remove('d-none');
+            submitStatus.style.display = 'none';
+        }
+
+        async function submitScore() {
+            btnSubmitScore.disabled = true;
+            submitStatus.style.display = 'block';
+            submitStatus.style.color = '#fbbf24';
+            submitStatus.textContent = '⏳ Mengirim data...';
+            
+            const detail = `Topik: "${selectedTopic}" | Kata Terlarang: [${forbiddenWords.join(', ')}] | Sisa Nyawa: ${lives}`;
+            const res = await BPSScores.submitScore("Jangan Sebut Kata Itu!", playerName, finalScore.textContent, detail);
+            
+            submitStatus.style.color = res.success ? '#10b981' : '#f87171';
+            submitStatus.textContent = res.message;
+            btnSubmitScore.disabled = false;
+        }
+    </script>
+</body>
+</html>

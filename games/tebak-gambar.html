@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tebak Gambar Absurd | BPS Games</title>
+    <!-- CSS Links -->
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Nav Bar -->
+    <nav class="game-nav">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a href="../index.html#games" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Kembali ke Dashboard
+            </a>
+            <span class="fw-bold text-danger m-0">BLASMAN PUBLIC SPEAKING</span>
+        </div>
+    </nav>
+
+    <!-- Main Game Area -->
+    <div class="game-container">
+        <div class="glass-card text-center">
+            <div class="mb-3">
+                <span class="badge bg-danger rounded-pill px-3 py-2 text-uppercase">Game #4</span>
+            </div>
+            <h1 class="game-title">Tebak Gambar Absurd</h1>
+            <p class="game-desc">
+                Tampilkan gambar lucu atau meme absurd. Peserta harus menjelaskan cerita atau teori konspirasi di balik gambar tersebut selama 30 detik tanpa henti berbicara!
+            </p>
+
+            <!-- Setup Screen -->
+            <div id="setup-screen">
+                <div class="row justify-content-center mb-4">
+                    <div class="col-md-8">
+                        <div class="mb-4 text-start">
+                            <label class="form-label text-white-50 fw-bold">Nama Peserta:</label>
+                            <input type="text" id="player-name" class="config-input" value="Pemain 1" placeholder="Masukkan nama Anda">
+                        </div>
+                        <button id="btn-start" class="btn-game btn-game-primary w-100 py-3">
+                            <i class="fas fa-eye"></i> Tampilkan Gambar & Mulai
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Board (Hidden Initially) -->
+            <div id="game-board" class="d-none">
+                <!-- Absurd Image Box -->
+                <div class="absurd-img-container mb-3">
+                    <img id="display-image" src="" alt="Meme Absurd" class="absurd-img">
+                </div>
+                
+                <div id="helper-prompt" class="small text-danger fw-bold mb-3">
+                    💡 Ide: Buat latar belakang lucu mengapa situasi ini bisa terjadi!
+                </div>
+
+                <!-- Timer Circular Display -->
+                <div class="timer-container my-4">
+                    <svg class="timer-svg">
+                        <circle class="timer-circle-bg" cx="80" cy="80" r="70"></circle>
+                        <circle id="timer-progress" class="timer-circle-progress" cx="80" cy="80" r="70" stroke-dasharray="440" stroke-dashoffset="0"></circle>
+                    </svg>
+                    <div id="timer-text" class="timer-text">30</div>
+                </div>
+
+                <!-- Controls -->
+                <div class="d-flex justify-content-center gap-3">
+                    <button id="btn-done" class="btn-game btn-game-primary px-4">
+                        <i class="fas fa-check"></i> Selesai Sebelum Waktu Habis
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Screen (Hidden Initially) -->
+            <div id="results-screen" class="d-none">
+                <h3 class="text-white fw-bold mb-2">Penilaian Selesai! 🎉</h3>
+                <p class="text-muted mb-4">Berikan penilaian Anda mengenai kelancaran berbicara dan kreativitas cerita.</p>
+                
+                <div class="row justify-content-center gap-3 my-4">
+                    <div class="col-md-6 bg-dark p-4 rounded border border-secondary text-start">
+                        <h5 class="text-white mb-3">🗳️ Evaluasi Juri / Teman</h5>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-white-50 small fw-bold">1. Kelancaran Berbicara (Fluency)</label>
+                            <select id="score-fluency" class="config-input w-100">
+                                <option value="90">Sangat Lancar (90-100)</option>
+                                <option value="80" selected>Lancar (80-89)</option>
+                                <option value="70">Cukup Lancar (70-79)</option>
+                                <option value="60">Kurang Lancar (60-69)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-white-50 small fw-bold">2. Kreativitas & Komedi (Absurdity)</label>
+                            <select id="score-creative" class="config-input w-100">
+                                <option value="95">Kreatif & Lucu Banget (90-100)</option>
+                                <option value="85" selected>Cukup Kreatif & Menarik (80-89)</option>
+                                <option value="75">Biasa Saja (70-79)</option>
+                                <option value="60">Garing / Kurang Hubungan (60-69)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="score-label mt-4">Total Skor Anda:</div>
+                        <div id="total-score-val" class="score-value mt-1">85</div>
+                        
+                        <hr class="border-secondary my-3">
+                        <button id="btn-submit-score" class="btn-game btn-game-success w-100 py-2" style="font-size:0.9rem;">
+                            <i class="fas fa-cloud-upload-alt"></i> Kirim Skor ke Google Sheets
+                        </button>
+                        <div id="submit-status" class="small mt-2 text-center" style="display:none;"></div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <button id="btn-restart" class="btn-game btn-game-primary">
+                        <i class="fas fa-redo"></i> Main Lagi
+                    </button>
+                    <a href="../index.html#games" class="btn-game btn-game-secondary">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <!-- Sheets configuration placeholder -->
+            <div id="sheets-config-container"></div>
+        </div>
+    </div>
+
+    <!-- Script Links -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="game-utils.js"></script>
+    <script>
+        // List of absurd images and their respective prompt suggestions
+        const absurdImages = [
+            {
+                url: "../img/absurd/cat-podium.png",
+                prompt: "💡 Ide: Kucing pintar memimpin oposisi burung merpati untuk merebut kekuasaan!",
+                title: "Kucing Berpidato"
+            },
+            {
+                url: "../img/absurd/astro-seblak.png",
+                prompt: "💡 Ide: Misi luar angkasa NASA meluncurkan kuah seblak pedas sebagai bahan bakar roket!",
+                title: "Astronot Makan Seblak"
+            },
+            {
+                url: "../img/absurd/dog-math.png",
+                prompt: "💡 Ide: Profesor Anjing menemukan rumus matematika terbaik untuk meminta makanan!",
+                title: "Anjing Belajar Matematika"
+            },
+            {
+                url: "../img/absurd/alien-bananas.png",
+                prompt: "💡 Ide: Alien menjelaskan rencana menjajah bumi tapi audiens pisangnya ketiduran!",
+                title: "Alien dan Pisang"
+            },
+            {
+                url: "../img/absurd/chicken-egg.png",
+                prompt: "💡 Ide: Profesor Ayam memecahkan teka-teki kuno: Mana yang lebih dulu lahir, Ayam atau Telur Dadar!",
+                title: "Kuliah Profesor Ayam"
+            }
+        ];
+
+        // State variables
+        let timer = null;
+        let timeLeft = 30;
+        let selectedGameImg = null;
+        let playerName = "";
+
+        const totalDuration = 30; // 30s
+        const strokeDashArray = 440; 
+
+        // Elements
+        const setupScreen = document.getElementById('setup-screen');
+        const gameBoard = document.getElementById('game-board');
+        const resultsScreen = document.getElementById('results-screen');
+        
+        const playerNameInput = document.getElementById('player-name');
+        const displayImage = document.getElementById('display-image');
+        const helperPrompt = document.getElementById('helper-prompt');
+        
+        const timerProgress = document.getElementById('timer-progress');
+        const timerText = document.getElementById('timer-text');
+        
+        const btnStart = document.getElementById('btn-start');
+        const btnDone = document.getElementById('btn-done');
+        const btnRestart = document.getElementById('btn-restart');
+        
+        const scoreFluency = document.getElementById('score-fluency');
+        const scoreCreative = document.getElementById('score-creative');
+        const totalScoreVal = document.getElementById('total-score-val');
+        const btnSubmitScore = document.getElementById('btn-submit-score');
+        const submitStatus = document.getElementById('submit-status');
+
+        // Initial setup
+        btnStart.addEventListener('click', startTebakGambar);
+        btnDone.addEventListener('click', finishGame);
+        btnRestart.addEventListener('click', restartGame);
+        btnSubmitScore.addEventListener('click', submitScore);
+        
+        // Listeners for scoring
+        const updateScores = () => {
+            const fVal = parseInt(scoreFluency.value);
+            const cVal = parseInt(scoreCreative.value);
+            totalScoreVal.textContent = Math.round((fVal + cVal) / 2);
+        };
+        scoreFluency.addEventListener('change', updateScores);
+        scoreCreative.addEventListener('change', updateScores);
+
+        function startTebakGambar() {
+            playerName = playerNameInput.value.trim() || "Pemain 1";
+            
+            // Randomly select one image
+            selectedGameImg = absurdImages[Math.floor(Math.random() * absurdImages.length)];
+            displayImage.src = selectedGameImg.url;
+            helperPrompt.textContent = selectedGameImg.prompt;
+            
+            // Transition screen
+            setupScreen.classList.add('d-none');
+            gameBoard.classList.remove('d-none');
+            resultsScreen.classList.add('d-none');
+            
+            startTimer();
+            BPSAudio.playDing();
+        }
+
+        function startTimer() {
+            clearInterval(timer);
+            timeLeft = totalDuration;
+            updateTimerDisplay();
+            
+            timer = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if (timeLeft <= 5 && timeLeft > 0) {
+                    BPSAudio.playTick();
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    BPSAudio.playBuzzer();
+                    finishGame();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            timerText.textContent = timeLeft;
+            
+            // Update circular svg
+            const pct = timeLeft / totalDuration;
+            const offset = strokeDashArray - (pct * strokeDashArray);
+            timerProgress.style.strokeDashoffset = offset;
+            
+            // Color changing progress
+            if (timeLeft <= 5) {
+                timerProgress.style.stroke = '#ef4444'; // danger red
+            } else {
+                timerProgress.style.stroke = '#7f1d1d'; // normal maroon
+            }
+        }
+
+        function finishGame() {
+            clearInterval(timer);
+            gameBoard.classList.add('d-none');
+            resultsScreen.classList.remove('d-none');
+            updateScores();
+            BPSAudio.playSuccess();
+        }
+
+        function restartGame() {
+            resultsScreen.classList.add('d-none');
+            setupScreen.classList.remove('d-none');
+            submitStatus.style.display = 'none';
+        }
+
+        async function submitScore() {
+            btnSubmitScore.disabled = true;
+            submitStatus.style.display = 'block';
+            submitStatus.style.color = '#fbbf24';
+            submitStatus.textContent = '⏳ Mengirim data...';
+            
+            const detail = `Gambar: "${selectedGameImg.title}" | Kelancaran: ${scoreFluency.value} | Kreativitas: ${scoreCreative.value}`;
+            const res = await BPSScores.submitScore("Tebak Gambar Absurd", playerName, totalScoreVal.textContent, detail);
+            
+            submitStatus.style.color = res.success ? '#10b981' : '#f87171';
+            submitStatus.textContent = res.message;
+            btnSubmitScore.disabled = false;
+        }
+    </script>
+</body>
+</html>

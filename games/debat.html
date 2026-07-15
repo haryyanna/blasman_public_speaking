@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debat Kusir 30 Detik | BPS Games</title>
+    <!-- CSS Links -->
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="../css/bootstrap.min.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Nav Bar -->
+    <nav class="game-nav">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a href="../index.html#games" class="btn-back">
+                <i class="fas fa-arrow-left"></i> Kembali ke Dashboard
+            </a>
+            <span class="fw-bold text-danger m-0">BLASMAN PUBLIC SPEAKING</span>
+        </div>
+    </nav>
+
+    <!-- Main Game Area -->
+    <div class="game-container">
+        <div class="glass-card text-center">
+            <div class="mb-3">
+                <span class="badge bg-danger rounded-pill px-3 py-2 text-uppercase">Game #1</span>
+            </div>
+            <h1 class="game-title">Debat Kusir 30 Detik</h1>
+            <p class="game-desc">
+                Bagi peserta menjadi 2 tim (Pro dan Kontra). Tim Pro berbicara 30 detik mengenai topik acak, lalu langsung dibalas oleh Tim Kontra selama 30 detik.
+            </p>
+
+            <!-- Setup Screen -->
+            <div id="setup-screen">
+                <div class="row justify-content-center mb-4">
+                    <div class="col-md-8">
+                        <div class="mb-3 text-start">
+                            <label class="form-label text-white-50 fw-bold">Nama Pembicara Pro:</label>
+                            <input type="text" id="player-pro" class="config-input" value="Tim Pro" placeholder="Masukkan nama tim pro">
+                        </div>
+                        <div class="mb-4 text-start">
+                            <label class="form-label text-white-50 fw-bold">Nama Pembicara Kontra:</label>
+                            <input type="text" id="player-contra" class="config-input" value="Tim Kontra" placeholder="Masukkan nama tim kontra">
+                        </div>
+                        <button id="btn-start" class="btn-game btn-game-primary w-100 py-3">
+                            <i class="fas fa-play"></i> Mulai Debat
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Board (Hidden Initially) -->
+            <div id="game-board" class="d-none">
+                <!-- Turn Indicator & Topic -->
+                <div class="mb-4">
+                    <div id="turn-badge" class="role-badge role-pro mb-3">Giliran: Pro</div>
+                    <h3 id="current-player-name" class="text-white fw-bold mb-2">Tim Pro</h3>
+                    <div class="text-muted small">Topik yang diperdebatkan:</div>
+                    <div id="topic-box" class="topic-panel">Menghasilkan topik...</div>
+                </div>
+
+                <!-- Timer Circular progress -->
+                <div class="timer-container my-4">
+                    <svg class="timer-svg">
+                        <circle class="timer-circle-bg" cx="80" cy="80" r="70"></circle>
+                        <circle id="timer-progress" class="timer-circle-progress" cx="80" cy="80" r="70" stroke-dasharray="440" stroke-dashoffset="0"></circle>
+                    </svg>
+                    <div id="timer-text" class="timer-text">30</div>
+                </div>
+
+                <!-- Gameplay Buttons -->
+                <div class="d-flex justify-content-center gap-3">
+                    <button id="btn-pause" class="btn-game btn-game-secondary px-4">
+                        <i class="fas fa-pause"></i> Pause
+                    </button>
+                    <button id="btn-next" class="btn-game btn-game-primary px-4">
+                        <i class="fas fa-arrow-right"></i> Lanjut (Kontra)
+                    </button>
+                </div>
+            </div>
+
+            <!-- Results Screen (Hidden Initially) -->
+            <div id="results-screen" class="d-none">
+                <h3 class="text-white fw-bold mb-3">Debat Selesai! 🎉</h3>
+                <p class="text-muted">Siapakah yang menyusun argumen paling meyakinkan dan berbicara paling percaya diri?</p>
+                
+                <div class="row justify-content-center gap-3 my-4">
+                    <div class="col-md-5 bg-dark p-3 rounded border border-secondary text-start">
+                        <h5 class="text-white mb-3">🗳️ Voting Pemenang</h5>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="debat-winner" id="winner-pro" value="Pro" checked>
+                            <label class="form-check-label text-white" for="winner-pro" id="lbl-winner-pro">Tim Pro</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="debat-winner" id="winner-contra" value="Kontra">
+                            <label class="form-check-label text-white" for="winner-contra" id="lbl-winner-contra">Tim Kontra</label>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="radio" name="debat-winner" id="winner-draw" value="Seri">
+                            <label class="form-check-label text-white" for="winner-draw">Debat Seri / Seimbang</label>
+                        </div>
+                        
+                        <button id="btn-submit-score" class="btn-game btn-game-success w-100 py-2" style="font-size:0.9rem;">
+                            <i class="fas fa-cloud-upload-alt"></i> Kirim Skor ke Google Sheets
+                        </button>
+                        <div id="submit-status" class="small mt-2 text-center" style="display:none;"></div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-center gap-3 mt-4">
+                    <button id="btn-restart" class="btn-game btn-game-primary">
+                        <i class="fas fa-redo"></i> Main Lagi
+                    </button>
+                    <a href="../index.html#games" class="btn-game btn-game-secondary">
+                        <i class="fas fa-home"></i> Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <!-- Sheets configuration placeholder -->
+            <div id="sheets-config-container"></div>
+        </div>
+    </div>
+
+    <!-- Script Links -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="game-utils.js"></script>
+    <script>
+        const topics = [
+            "Bubur Diaduk vs Tidak Diaduk",
+            "Mie Instan Goreng vs Mie Instan Kuah",
+            "Nanas Di Atas Pizza: Ya vs Tidak",
+            "Nasi Goreng Kering vs Nasi Goreng Basah/Mawut",
+            "Es Teh Manis vs Kopi Susu Gula Aren",
+            "Belajar Malam Hari vs Belajar Pagi Buta",
+            "Mabar Game Online vs Nonton Bioskop Bareng",
+            "Media Sosial: Lebih Banyak Manfaat vs Mudarat",
+            "Uang Saku Harian vs Uang Saku Mingguan",
+            "Buku Fisik vs Buku Elektronik (E-Book)",
+            "Kerja Kelompok vs Kerja Sendiri-Sendiri",
+            "Jurusan IPA vs Jurusan IPS di SMA"
+        ];
+
+        // State variables
+        let timer = null;
+        let timeLeft = 30;
+        let isPaused = false;
+        let currentPhase = 'pro'; // 'pro' or 'contra'
+        let selectedTopic = "";
+        let proName = "";
+        let contraName = "";
+
+        const totalDuration = 30; // 30 seconds
+        const strokeDashArray = 440; // 2 * pi * r (approx)
+
+        // Elements
+        const setupScreen = document.getElementById('setup-screen');
+        const gameBoard = document.getElementById('game-board');
+        const resultsScreen = document.getElementById('results-screen');
+        
+        const playerProInput = document.getElementById('player-pro');
+        const playerContraInput = document.getElementById('player-contra');
+        
+        const turnBadge = document.getElementById('turn-badge');
+        const currentPlayerName = document.getElementById('current-player-name');
+        const topicBox = document.getElementById('topic-box');
+        
+        const timerProgress = document.getElementById('timer-progress');
+        const timerText = document.getElementById('timer-text');
+        
+        const btnStart = document.getElementById('btn-start');
+        const btnPause = document.getElementById('btn-pause');
+        const btnNext = document.getElementById('btn-next');
+        const btnRestart = document.getElementById('btn-restart');
+        
+        const lblWinnerPro = document.getElementById('lbl-winner-pro');
+        const lblWinnerContra = document.getElementById('lbl-winner-contra');
+        const btnSubmitScore = document.getElementById('btn-submit-score');
+        const submitStatus = document.getElementById('submit-status');
+
+        // Initial setup
+        btnStart.addEventListener('click', startDebat);
+        btnPause.addEventListener('click', togglePause);
+        btnNext.addEventListener('click', nextPhase);
+        btnRestart.addEventListener('click', restartGame);
+        btnSubmitScore.addEventListener('click', submitScore);
+
+        function startDebat() {
+            proName = playerProInput.value.trim() || "Tim Pro";
+            contraName = playerContraInput.value.trim() || "Tim Kontra";
+            
+            lblWinnerPro.textContent = proName;
+            lblWinnerContra.textContent = contraName;
+            
+            // Pick topic
+            selectedTopic = topics[Math.floor(Math.random() * topics.length)];
+            topicBox.textContent = selectedTopic;
+            
+            // Set phase
+            currentPhase = 'pro';
+            turnBadge.className = "role-badge role-pro mb-3";
+            turnBadge.textContent = "Giliran: PRO";
+            currentPlayerName.textContent = proName;
+            btnNext.innerHTML = `<i class="fas fa-arrow-right"></i> Lanjut (${contraName})`;
+            
+            // Transition screen
+            setupScreen.classList.add('d-none');
+            gameBoard.classList.remove('d-none');
+            resultsScreen.classList.add('d-none');
+            
+            startTimer();
+            BPSAudio.playDing();
+        }
+
+        function startTimer() {
+            clearInterval(timer);
+            timeLeft = totalDuration;
+            isPaused = false;
+            btnPause.innerHTML = `<i class="fas fa-pause"></i> Pause`;
+            updateTimerDisplay();
+            
+            timer = setInterval(() => {
+                if (!isPaused) {
+                    timeLeft--;
+                    updateTimerDisplay();
+                    
+                    if (timeLeft <= 5 && timeLeft > 0) {
+                        BPSAudio.playTick();
+                    }
+                    
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        BPSAudio.playBuzzer();
+                        handleTimeOut();
+                    }
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            timerText.textContent = timeLeft;
+            
+            // Update circular svg
+            const pct = timeLeft / totalDuration;
+            const offset = strokeDashArray - (pct * strokeDashArray);
+            timerProgress.style.strokeDashoffset = offset;
+            
+            // Color changing progress
+            if (timeLeft <= 5) {
+                timerProgress.style.stroke = '#ef4444'; // danger red
+            } else if (timeLeft <= 10) {
+                timerProgress.style.stroke = '#fbbf24'; // warning gold
+            } else {
+                timerProgress.style.stroke = '#7f1d1d'; // normal maroon
+            }
+        }
+
+        function togglePause() {
+            isPaused = !isPaused;
+            btnPause.innerHTML = isPaused ? `<i class="fas fa-play"></i> Resume` : `<i class="fas fa-pause"></i> Pause`;
+        }
+
+        function nextPhase() {
+            clearInterval(timer);
+            if (currentPhase === 'pro') {
+                // Change to contra
+                currentPhase = 'contra';
+                turnBadge.className = "role-badge role-contra mb-3";
+                turnBadge.textContent = "Giliran: KONTRA";
+                currentPlayerName.textContent = contraName;
+                btnNext.innerHTML = `<i class="fas fa-check"></i> Selesai Debat`;
+                startTimer();
+                BPSAudio.playDing();
+            } else {
+                // Selesai
+                finishGame();
+            }
+        }
+
+        function handleTimeOut() {
+            if (currentPhase === 'pro') {
+                // Auto prompt to contra after delay
+                setTimeout(() => {
+                    nextPhase();
+                }, 1500);
+            } else {
+                setTimeout(() => {
+                    finishGame();
+                }, 1500);
+            }
+        }
+
+        function finishGame() {
+            clearInterval(timer);
+            gameBoard.classList.add('d-none');
+            resultsScreen.classList.remove('d-none');
+            BPSAudio.playSuccess();
+        }
+
+        function restartGame() {
+            resultsScreen.classList.add('d-none');
+            setupScreen.classList.remove('d-none');
+            submitStatus.style.display = 'none';
+        }
+
+        async function submitScore() {
+            const winnerVal = document.querySelector('input[name="debat-winner"]:checked');
+            if (!winnerVal) return;
+            
+            const winner = winnerVal.value;
+            let winnerName = "";
+            let scoreText = "1"; // Default score point
+            
+            if (winner === 'Pro') winnerName = proName;
+            else if (winner === 'Contra') winnerName = contraName;
+            else winnerName = "Seri (Pro & Contra)";
+            
+            btnSubmitScore.disabled = true;
+            submitStatus.style.display = 'block';
+            submitStatus.style.color = '#fbbf24';
+            submitStatus.textContent = '⏳ Mengirim data...';
+            
+            const detail = `Topik: "${selectedTopic}" | Pro: ${proName} | Kontra: ${contraName} | Pemenang: ${winnerName}`;
+            const res = await BPSScores.submitScore("Debat Kusir 30 Detik", winnerName, scoreText, detail);
+            
+            submitStatus.style.color = res.success ? '#10b981' : '#f87171';
+            submitStatus.textContent = res.message;
+            btnSubmitScore.disabled = false;
+        }
+    </script>
+</body>
+</html>
