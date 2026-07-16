@@ -960,6 +960,13 @@ body { scroll-padding-top: 64px; }
     background: rgba(0,0,0,0.05);
     color: #000;
 }
+/* TikTok icon sizing inside social buttons */
+.social-icon img.tiktok-icon, .social-icon .tiktok-icon {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    display: block;
+}
 .contact-card {
     padding: 1.75rem;
 }
@@ -996,9 +1003,6 @@ body { scroll-padding-top: 64px; }
 }
 
 /* Social links under About */
-    color: var(--primary);
-    border-color: var(--light);
-}
 
 .footer .btn.btn-link {
     display: block;
